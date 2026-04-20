@@ -1,0 +1,179 @@
+substitutions:
+  device_name: "Radio CC11"
+
+esphome:
+  name: c11
+  friendly_name: "Radio CC11"
+
+esp32:
+  board: esp32dev
+  framework:
+    type: esp-idf
+
+# Enable logging
+logger:
+  level: WARN
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "2j+pY4JXhwnb0BeGI3ZIpyhgyuiKi5LeRhyRT52VlZ0="
+
+ota:
+  - platform: esphome
+    password: "b751d84d938366c953af090b9e635e30"
+
+wifi:
+  ssid: !secret wifi_dol
+  password: !secret wifi_pass_dol
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "C11 Fallback Hotspot"
+    password: "ZMUvqY0w6GA4"
+
+captive_portal:
+
+safe_mode:
+  num_attempts: 3
+
+# ------------------------------------------------------
+# TIME
+# ------------------------------------------------------
+time:
+  - platform: sntp
+    id: time_sntp
+
+# ------------------------------------------------------
+# EXTERNAL COMPONENTS
+# ------------------------------------------------------
+external_components:
+  - source: github://SzczepanLeon/esphome-components@main
+    components: [ wmbus_radio, wmbus_meter, wmbus_common ]
+
+# ------------------------------------------------------
+# SPI BUS
+# ------------------------------------------------------
+spi:
+  clk_pin: GPIO18
+  mosi_pin: GPIO23
+  miso_pin: GPIO19
+
+# ------------------------------------------------------
+# WMBUS RADIO – CC1101
+# ------------------------------------------------------
+wmbus_radio:
+  radio_type: CC1101
+  cs_pin: GPIO5
+  irq_pin: GPIO4
+  frequency: 868.95MHz
+
+# ------------------------------------------------------
+# WMBUS METER – GAMA350
+# ------------------------------------------------------
+wmbus_meter:
+  - id: gama350
+    meter_id: 0x31676464
+    type: amiplus
+    key: !secret key_gama350
+    mode:
+      - T1
+
+  - id: izar_water
+    meter_id: 0x41004355
+    type: izar
+    mode:
+      - T1
+
+# ------------------------------------------------------
+# SENSORS – WMBUS
+# ------------------------------------------------------
+sensor:
+  - platform: wmbus_meter
+    parent_id: gama350
+    field: total_energy_consumption_kwh
+    name: "Całkowita energia L1"
+    accuracy_decimals: 3
+    unit_of_measurement: "kWh"
+    device_class: energy
+    state_class: total_increasing
+
+  - platform: wmbus_meter
+    parent_id: gama350
+    field: rssi_dbm
+    name: "Energia RSSI"
+    accuracy_decimals: 0
+    unit_of_measurement: "dBm"
+    device_class: signal_strength
+    state_class: measurement
+    entity_category: diagnostic
+
+  - platform: wmbus_meter
+    parent_id: izar_water
+    field: total_m3
+    name: "Woda Łączne Zużycie"
+    accuracy_decimals: 3
+    unit_of_measurement: "m³"
+    device_class: water
+    state_class: total_increasing
+
+  - platform: wmbus_meter
+    parent_id: izar_water
+    field: rssi_dbm
+    name: "Woda RSSI"
+    accuracy_decimals: 0
+    unit_of_measurement: "dBm"
+    device_class: signal_strength
+    state_class: measurement
+    entity_category: diagnostic
+
+# ------------------------------------------------------
+# DIAGNOSTICS
+# ------------------------------------------------------
+  - platform: wifi_signal
+    name: "${device_name} WiFi Sygnał"
+    update_interval: 60s
+    id: wifi_signal_db
+    entity_category: diagnostic
+
+  - platform: uptime
+    name: "${device_name} Czas Pracy"
+    update_interval: 300s
+    device_class: duration
+    state_class: total_increasing
+    unit_of_measurement: "s"
+    entity_category: diagnostic
+
+  - platform: copy
+    source_id: wifi_signal_db
+    name: "WiFi Signal Percent ${device_name}"
+    unit_of_measurement: "%"
+    entity_category: diagnostic
+    filters:
+      - lambda: return min(max(2 * (x + 100.0), 0.0), 100.0);
+
+# ------------------------------------------------------
+# SWITCHES
+# ------------------------------------------------------
+switch:
+  - platform: restart
+    name: "${device_name} Reset"
+
+# ------------------------------------------------------
+# TEXT SENSORS
+# ------------------------------------------------------
+text_sensor:
+  - platform: wifi_info
+    ip_address:
+      name: "${device_name} IP Adres"
+    ssid:
+      name: "${device_name} Połączony z siecią"
+    mac_address:
+      name: "${device_name} Mac Adres WiFi"
+
+# ------------------------------------------------------
+# BINARY SENSORS
+# ------------------------------------------------------
+binary_sensor:
+  - platform: status
+    name: "${device_name} Status"

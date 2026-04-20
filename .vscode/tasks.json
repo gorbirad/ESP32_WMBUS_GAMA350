@@ -1,0 +1,15 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "PlatformIO Build ESP32Dev",
+			"type": "shell",
+			"command": "cmd.exe",
+			"args": [
+				"/c",
+				"cd /d c:\\Users\\rlask\\Documents\\PlatformIO\\Projects\\ESP32_WMBUS_GAMA350 && platformio.exe run --environment esp32dev"
+			],
+			"group": "build"
+		}
+	]
+}

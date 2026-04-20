@@ -7,13 +7,22 @@
 #include <ELECHOUSE_CC1101_SRC_DRV.h>
 #include <time.h>
 #include "wmbus_gama350.h"
+#include "secrets.h"
+
+#ifndef SECRET_WIFI_SSID
+#error "SECRET_WIFI_SSID is not defined. Create include/secrets.h based on include/secrets.h.example"
+#endif
+
+#ifndef SECRET_WIFI_PASSWORD
+#error "SECRET_WIFI_PASSWORD is not defined. Create include/secrets.h based on include/secrets.h.example"
+#endif
 
 // =========================
 // WiFi / NTP
 // =========================
 
-const char* WIFI_SSID     = "beskidlas_parter";
-const char* WIFI_PASSWORD = "RiU03082013Beskidzka";
+const char* WIFI_SSID     = SECRET_WIFI_SSID;
+const char* WIFI_PASSWORD = SECRET_WIFI_PASSWORD;
 const char* FALLBACK_AP_SSID = "ESP32-WMBUS";
 const char* FALLBACK_AP_PASS = "esp32wmbus";
 const char* NTP_SERVER1   = "pool.ntp.org";

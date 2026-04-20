@@ -1,0 +1,229 @@
+substitutions:
+  device_name: "Radio CC1101"
+
+esphome:
+  name: "esp32-radio-cc1101"
+  friendly_name: CC1101 Radio
+  name_add_mac_suffix: false
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+logger:
+  level: VERY_VERBOSE
+
+api:
+  encryption:
+    key: "bJu5QcJxQxDQhmSrulFzrasd2aY9oIAIFALJBfbjsM4="
+
+ota:
+  - platform: esphome
+    password: "faa3a7d1a756as238c851239c546fcbd"
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  fast_connect: true
+  power_save_mode: none
+  use_address: 192.168.0.202
+
+  ap:
+    ssid: "Cc1101-Radio Fallback Hotspot"
+    password: "csnRyLPsXBsY"
+
+captive_portal:
+
+# ------------------------------------------------------
+# TIME
+# ------------------------------------------------------
+time:
+  - platform: sntp
+    id: time_sntp
+
+# ------------------------------------------------------
+# EXTERNAL COMPONENTS
+# ------------------------------------------------------
+external_components:
+  - source: github://SzczepanLeon/esphome-components@version_4
+    refresh: 0d
+    components: [ wmbus ]
+
+# # ------------------------------------------------------
+# # WMBUS + CC1101 CONFIG
+# # ------------------------------------------------------
+wmbus:
+  mosi_pin: GPIO23
+  miso_pin: GPIO19
+  clk_pin:  GPIO18
+  cs_pin:   GPIO5
+  gdo0_pin: GPIO4
+  gdo2_pin: GPIO27
+  
+  led_pin: GPIO0
+  led_blink_time: "1s"
+  
+  frequency: 868.950
+  all_drivers: False
+  sync_mode: true
+  log_all: true
+
+# # ------------------------------------------------------
+# # SENSORS – WMBUS
+# # ------------------------------------------------------
+sensor:
+  - platform: wmbus
+    meter_id: 0x31676464
+    type: amiplus
+    key: !secret key_gama350
+    sensors:
+      - name: "Energia RSSi"
+        field: "rssi"
+        accuracy_decimals: 0
+        unit_of_measurement: "dBm"
+        device_class: signal_strength
+        state_class: measurement
+        entity_category: diagnostic
+
+      # - name: "Aktualne zużycie"
+      #   field: "current_power_consumption"
+      #   accuracy_decimals: 1
+      #   unit_of_measurement: "W"
+      #   device_class: power
+      #   state_class: measurement
+
+      # - name: "Aktualne zużycie L1"
+      #   field: "current_power_consumption_l1"
+      #   accuracy_decimals: 1
+      #   unit_of_measurement: "W"
+      #   device_class: power
+      #   state_class: measurement
+
+      # - name: "Aktualne zużycie L2"
+      #   field: "current_power_consumption_l2"
+      #   accuracy_decimals: 1
+      #   unit_of_measurement: "W"
+      #   device_class: power
+      #   state_class: measurement
+
+      # - name: "Aktualne zużycie L3"
+      #   field: "current_power_consumption_l3"
+      #   accuracy_decimals: 1
+      #   unit_of_measurement: "W"
+      #   device_class: power
+      #   state_class: measurement
+
+      - name: "Całkowita energia L1"
+        field: "total_energy_consumption_tariff_1"
+        accuracy_decimals: 3
+        unit_of_measurement: "kWh"
+        device_class: energy
+        state_class: total_increasing
+
+      # - name: "Napięcie L1"
+      #   field: "voltage_at_phase_1"
+      #   accuracy_decimals: 0
+      #   unit_of_measurement: "V"
+      #   device_class: voltage
+      #   state_class: measurement
+
+      # - name: "Natężenie L1"
+      #   field: "current_at_phase_1"
+      #   accuracy_decimals: 2
+      #   unit_of_measurement: "A"
+      #   device_class: current
+      #   state_class: measurement
+
+      # - name: "Całkowita energia L2"
+      #   field: "total_energy_consumption_tariff_2"
+      #   accuracy_decimals: 3
+      #   unit_of_measurement: "kWh"
+      #   device_class: energy
+      #   state_class: total_increasing
+
+      # - name: "Napięcie L2"
+      #   field: "voltage_at_phase_2"
+      #   accuracy_decimals: 0
+      #   unit_of_measurement: "V"
+      #   device_class: voltage
+      #   state_class: measurement
+
+      # - name: "Natężenie L2"
+      #   field: "current_at_phase_2"
+      #   accuracy_decimals: 2
+      #   unit_of_measurement: "A"
+      #   device_class: current
+      #   state_class: measurement
+
+      # - name: "Całkowita energia L3"
+      #   field: "total_energy_consumption_tariff_3"
+      #   accuracy_decimals: 3
+      #   unit_of_measurement: "kWh"
+      #   device_class: energy
+      #   state_class: total_increasing
+
+      # - name: "Napięcie L3"
+      #   field: "voltage_at_phase_3"
+      #   accuracy_decimals: 0
+      #   unit_of_measurement: "V"
+      #   device_class: voltage
+      #   state_class: measurement
+
+      # - name: "Natężenie L3"
+      #   field: "current_at_phase_3"
+      #   accuracy_decimals: 2
+      #   unit_of_measurement: "A"
+      #   device_class: current
+      #   state_class: measurement
+
+# ------------------------------------------------------
+# DIAGNOSTICS
+# ------------------------------------------------------
+  - platform: wifi_signal
+    name: "${device_name} WiFi Sygnał"
+    update_interval: 60s
+    id: wifi_signal_db
+    entity_category: diagnostic
+
+  - platform: uptime
+    name: "${device_name} Czas Pracy"
+    update_interval: 300s
+    device_class: duration
+    state_class: total_increasing
+    unit_of_measurement: "s"
+    entity_category: diagnostic
+
+  - platform: copy
+    source_id: wifi_signal_db
+    name: "WiFi Signal Percent ${device_name}"
+    unit_of_measurement: "%"
+    entity_category: diagnostic
+    filters:
+      - lambda: return min(max(2 * (x + 100.0), 0.0), 100.0);
+
+# ------------------------------------------------------
+# SWITCHES
+# ------------------------------------------------------
+switch:
+  - platform: restart
+    name: "${device_name} Reset"
+
+# ------------------------------------------------------
+# TEXT SENSORS
+# ------------------------------------------------------
+text_sensor:
+  - platform: wifi_info
+    ip_address:
+      name: "${device_name} IP Adres"
+    ssid:
+      name: "${device_name} Połączony z siecią"
+    mac_address:
+      name: "${device_name} Mac Adres WiFi"
+
+# ------------------------------------------------------
+# BINARY SENSORS
+# ------------------------------------------------------
+binary_sensor:
+  - platform: status
+    name: "${device_name} Status"
