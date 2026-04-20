@@ -70,6 +70,23 @@ ESP32_WMBUS_GAMA350/
 
 ---
 
+## 🧪 Analiza logów i dokumentacja
+
+- **ESPHome:** konfiguracja i analiza logów w `docs/ESPHOME.md`
+- **Kod `main.cpp` (PlatformIO):** opis działania i diagnostyka w `docs/PLATFORMIO.md`
+
+Przy analizie zgłoszeń sprawdź: błędy, status połączenia Wi‑Fi, oraz czy ramki z liczników są odbierane i dekodowane.
+
+> 🔒 Nie publikuj prawdziwych danych logowania ani kluczy (`secrets.yaml`, `include/secrets.h`, API/OTA/AES).
+
+Jeśli musisz cofnąć ostatni lokalny commit:
+
+```bash
+git reset HEAD~1
+```
+
+---
+
 ## 🔗 Przydatne linki
 
 | Link | Opis |

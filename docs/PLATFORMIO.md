@@ -43,6 +43,7 @@ Zawartość `secrets.h`:
 ```cpp
 #define SECRET_WIFI_SSID     "TwojaNazwaSieci"
 #define SECRET_WIFI_PASSWORD "TwojeHaslo"
+#define SECRET_GAMA350_AES_KEY_HEX "TwojKluczAES128Hex"
 ```
 
 > ⚠️ Plik `secrets.h` **nie powinien być commitowany** do repozytorium — dodaj go do `.gitignore`.
@@ -170,7 +171,7 @@ Gdy główny log (`/logcc1101.ndjson`) przekroczy **384 KB**, jest automatycznie
 
 Parser `wmbus_gama350.cpp` obsługuje deszyfrowanie telegramów EGM (typ `amiplus`):
 
-- Klucz AES-128 skonfigurowany jest bezpośrednio w `main.cpp` przez stałą `GAMA350_AES_KEY_HEX`
+- Klucz AES-128 podawany jest w `include/secrets.h` przez `SECRET_GAMA350_AES_KEY_HEX`
 - Parser weryfikuje nagłówek przez numer seryjny licznika w BCD
 - Po udanym deszyfrowaniu zwraca strukturę `Gama350Data` z polami `energy` (Wh) i `power` (W)
 
@@ -219,6 +220,24 @@ Po połączeniu z AP otwórz przeglądarkę pod adresem `http://192.168.4.1`.
 
 ---
 
+## 🔍 Analiza logów (main.cpp)
+
+1. Uruchom monitor:
+   ```bash
+   pio device monitor --baud 115200
+   ```
+2. Sprawdź w logu:
+   - błędy CC1101/Wi‑Fi (`BLAD`, `UWAGA`, `Brak polaczenia WiFi`),
+   - czy pojawiają się ramki i licznik ramek rośnie,
+   - czy są dopasowania do licznika (`meter_match`, `meter_decoded`).
+3. Otwórz endpointy diagnostyczne:
+   - `/diag` — szybki status pracy,
+   - `/log_meter` — tylko ramki dopasowane do GAMA350.
+
+Do zgłoszenia dołącz krótki fragment logu i status `/diag`, bez danych z `include/secrets.h`.
+
+---
+
 ## 🛠️ Rozwiązywanie problemów
 
 ### Błąd kompilacji: `SECRET_WIFI_SSID is not defined`
@@ -237,5 +256,5 @@ Sprawdź czy SPIFFS został sformatowany: przy pierwszym uruchomieniu `SPIFFS.be
 
 ### Deszyfrowanie nie działa (`meter_decoded: false`)
 
-- Sprawdź poprawność klucza AES w stałej `GAMA350_AES_KEY_HEX` — musi to być 32 znaki hex.
+- Sprawdź poprawność klucza AES w `SECRET_GAMA350_AES_KEY_HEX` (`include/secrets.h`) — musi to być 32 znaki hex.
 - Klucz musi pochodzić od dystrybutora energii (PGE/Tauron itp.).

@@ -35,6 +35,9 @@ W tym samym katalogu co plik YAML utwórz `secrets.yaml` z następującymi wpisa
 wifi_dol: "TwojaNazwaSieci"
 wifi_pass_dol: "TwojeHaslo"
 key_gama350: "TwojeHeksadecymalneHasloAES128"
+api_encryption_key: "TwojKluczAPI"
+ota_password: "TwojeHasloOTA"
+fallback_ap_password: "TwojeHasloAP"
 ```
 
 > 🔑 `key_gama350` — 16-bajtowy klucz AES-128 (32 znaki hex) do odszyfrowania telegramów licznika GAMA350. Klucz uzyskuje się od dystrybutora energii (PGE/Tauron itp.).
@@ -161,8 +164,8 @@ Po wgraniu firmware encje pojawią się automatycznie w HA:
 |---------|------|
 | **Safe Mode** | Po 3 nieudanych startach urządzenie uruchamia się w trybie awaryjnym (OTA nadal działa) |
 | **Captive Portal** | Brak Wi-Fi → ESP32 tworzy własną sieć AP `C11 Fallback Hotspot` |
-| **Szyfrowanie API** | Komunikacja z HA szyfrowana kluczem Noise Protocol (wbudowany w YAML) |
-| **OTA** | Aktualizacje przez sieć, zabezpieczone hasłem w konfiguracji |
+| **Szyfrowanie API** | Komunikacja z HA szyfrowana kluczem Noise Protocol z `secrets.yaml` |
+| **OTA** | Aktualizacje przez sieć, zabezpieczone hasłem z `secrets.yaml` |
 
 ---
 
@@ -190,6 +193,14 @@ logger:
 ```
 
 > Przywróć `WARN` po diagnozie — poziom DEBUG generuje dużo szumu.
+
+### Analiza logów (checklista)
+
+1. **Błędy:** wyszukaj `error`, `failed`, `timeout`, `not handled`.
+2. **Połączenie Wi‑Fi:** potwierdź, że urządzenie ma IP i utrzymuje połączenie.
+3. **Odbieranie danych:** sprawdź, czy pojawiają się telegramy i aktualizują się sensory.
+
+Do zgłoszenia dołącz fragment logu (start + 1–2 min pracy), ale bez ujawniania danych z `secrets.yaml`.
 
 ---
 
