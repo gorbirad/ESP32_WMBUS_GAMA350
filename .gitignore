@@ -44,7 +44,6 @@ main.txt
 secrets.*
 secrets.yaml
 *.local.yaml
-kod_esp_home_c1101_wgrany.yaml
 *.pem
 *.key
 include/secrets.h
