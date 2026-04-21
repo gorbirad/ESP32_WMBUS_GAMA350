@@ -24,8 +24,13 @@ ota:
     password: !secret ota_password
 
 wifi:
-  ssid: !secret wifi_dol
-  password: !secret wifi_pass_dol
+  # Keep fast_connect disabled so ESP can scan and pick the best available AP.
+  fast_connect: false
+  networks:
+    - ssid: !secret wifi_dol
+      password: !secret wifi_pass_dol
+    - ssid: !secret wifi_ssid
+      password: !secret wifi_password
 
   # Enable fallback hotspot (captive portal) in case wifi connection fails
   ap:
@@ -80,8 +85,9 @@ wmbus_meter:
       - T1
 
   - id: izar_water
-    meter_id: 0x41004355
+    meter_id: 0x416e874f
     type: izar
+    key: !secret key_izar
     mode:
       - T1
 
