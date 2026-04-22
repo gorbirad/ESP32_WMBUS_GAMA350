@@ -84,13 +84,6 @@ wmbus_meter:
     mode:
       - T1
 
-  - id: izar_water
-    meter_id: 0x416e874f
-    type: izar
-    key: !secret key_izar
-    mode:
-      - T1
-
 # ------------------------------------------------------
 # SENSORS – WMBUS
 # ------------------------------------------------------
@@ -108,25 +101,6 @@ sensor:
     parent_id: gama350
     field: rssi_dbm
     name: "Energia RSSI"
-    accuracy_decimals: 0
-    unit_of_measurement: "dBm"
-    device_class: signal_strength
-    state_class: measurement
-    entity_category: diagnostic
-
-  - platform: wmbus_meter
-    parent_id: izar_water
-    field: total_m3
-    name: "Woda Łączne Zużycie"
-    accuracy_decimals: 3
-    unit_of_measurement: "m³"
-    device_class: water
-    state_class: total_increasing
-
-  - platform: wmbus_meter
-    parent_id: izar_water
-    field: rssi_dbm
-    name: "Woda RSSI"
     accuracy_decimals: 0
     unit_of_measurement: "dBm"
     device_class: signal_strength
