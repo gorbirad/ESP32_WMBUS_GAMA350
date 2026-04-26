@@ -1,9 +1,17 @@
 substitutions:
   device_name: "Radio CC11"
+  wm_frequency: "868.95MHz"
+  fw_version: "2026.04.25-02"
 
 esphome:
   name: c11
   friendly_name: "Radio CC11"
+  on_boot:
+    priority: -200
+    then:
+      - delay: 20s
+      - lambda: |-
+          ESP_LOGI("fw", "FW_VERSION=%s RESTART", "${fw_version}");
 
 esp32:
   board: esp32dev
@@ -43,6 +51,13 @@ safe_mode:
   num_attempts: 3
 
 # ------------------------------------------------------
+# TIME
+# ------------------------------------------------------
+time:
+  - platform: sntp
+    id: time_sntp
+
+# ------------------------------------------------------
 # EXTERNAL COMPONENTS
 # ------------------------------------------------------
 external_components:
@@ -64,27 +79,68 @@ wmbus_radio:
   radio_type: CC1101
   cs_pin: GPIO5
   irq_pin: GPIO4
-  frequency: 868.95MHz
+  frequency: ${wm_frequency}
 
 # ------------------------------------------------------
-# WMBUS METER – GAMA350
+# WMBUS METER – DIAGNOSTYKA
+# 1. sasiad 41223bd8 (izar) – potwierdzenie ze driver w ogole dziala
+# 2. gama350 31676464 (amiplus) – glowny cel
 # ------------------------------------------------------
 wmbus_meter:
+  # Test: sasiad powinien dac "Using driver izar" w logu
+  - id: sasiad_izar
+    meter_id: 0x41223bd8
+    type: izar
+    mode:
+      - C1
+      - T1
+
+  # Glowny cel: GAMA350
+  # type: amiplus = licznik energii AMI+; zmien jesli telegram bedzie inny
+  # key: jesli szyfrowanie nieznane, usun klucz i sprobuj bez
   - id: gama350
     meter_id: 0x31676464
     type: amiplus
     key: !secret key_gama350
     mode:
       - C1
+      - T1
+
+  # Dodatkowy licznik widoczny w logach (zwykle IZAR)
+  - id: sasiad_izar_2
+    meter_id: 0x416eb704
+    type: izar
+    mode:
+      - C1
+      - T1
 
 # ------------------------------------------------------
-# SENSORS – WMBUS
+# SENSORS – diagnostyka: tylko wskaznik ze odebrano + RSSI
 # ------------------------------------------------------
 sensor:
   - platform: wmbus_meter
+    parent_id: sasiad_izar
+    field: total_m3
+    name: "Sasiad woda m3"
+    accuracy_decimals: 3
+    unit_of_measurement: "m3"
+    device_class: water
+    state_class: total_increasing
+
+  - platform: wmbus_meter
+    parent_id: sasiad_izar
+    field: rssi_dbm
+    name: "Sasiad RSSI"
+    accuracy_decimals: 0
+    unit_of_measurement: "dBm"
+    device_class: signal_strength
+    state_class: measurement
+    entity_category: diagnostic
+
+  - platform: wmbus_meter
     parent_id: gama350
     field: total_energy_consumption_kwh
-    name: "Całkowita energia L1"
+    name: "Energia calkowita kWh"
     accuracy_decimals: 3
     unit_of_measurement: "kWh"
     device_class: energy
@@ -99,4 +155,25 @@ sensor:
     device_class: signal_strength
     state_class: measurement
     entity_category: diagnostic
+
+  - platform: wmbus_meter
+    parent_id: sasiad_izar_2
+    field: total_m3
+    name: "Sasiad2 woda m3"
+    accuracy_decimals: 3
+    unit_of_measurement: "m3"
+    device_class: water
+    state_class: total_increasing
+
+  - platform: wmbus_meter
+    parent_id: sasiad_izar_2
+    field: rssi_dbm
+    name: "Sasiad2 RSSI"
+    accuracy_decimals: 0
+    unit_of_measurement: "dBm"
+    device_class: signal_strength
+    state_class: measurement
+    entity_category: diagnostic
+
+
 
