@@ -17,6 +17,10 @@
 #error "SECRET_WIFI_PASSWORD is not defined. Create include/secrets.h based on include/secrets.h.example"
 #endif
 
+#ifndef SECRET_GAMA350_AES_KEY_HEX
+#error "SECRET_GAMA350_AES_KEY_HEX is not defined. Create include/secrets.h based on include/secrets.h.example"
+#endif
+
 // =========================
 // WiFi / NTP
 // =========================
@@ -27,7 +31,7 @@ const char* FALLBACK_AP_SSID = "ESP32-WMBUS";
 const char* FALLBACK_AP_PASS = "esp32wmbus";
 const char* NTP_SERVER1   = "pool.ntp.org";
 const char* NTP_SERVER2   = "time.nist.gov";
-const char* GAMA350_AES_KEY_HEX = "32003316764640000000000000000000";
+const char* GAMA350_AES_KEY_HEX = SECRET_GAMA350_AES_KEY_HEX;
 const uint32_t GAMA350_METER_SERIAL = 0x31676464;
 const uint8_t GAMA350_SERIAL_BCD_LE[4] = {0x64, 0x64, 0x67, 0x31};
 const uint8_t GAMA350_SERIAL_BCD_BE[4] = {0x31, 0x67, 0x64, 0x64};

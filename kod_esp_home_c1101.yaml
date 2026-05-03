@@ -16,11 +16,11 @@ logger:
 
 api:
   encryption:
-    key: "bJu5QcJxQxDQhmSrulFzrasd2aY9oIAIFALJBfbjsM4="
+    key: !secret api_encryption_key
 
 ota:
   - platform: esphome
-    password: "faa3a7d1a756as238c851239c546fcbd"
+    password: !secret ota_password
 
 wifi:
   ssid: !secret wifi_ssid
@@ -31,7 +31,7 @@ wifi:
 
   ap:
     ssid: "Cc1101-Radio Fallback Hotspot"
-    password: "csnRyLPsXBsY"
+    password: !secret fallback_ap_password
 
 captive_portal:
 

@@ -1,7 +1,7 @@
 ---
 name: "Senior ESP32 Electronics"
 description: "Use when: ESP32, ESPHome, Arduino, Home Assistant, CC1101, PlatformIO, IoT firmware, elektronika, debug hardware, telemetry, sensors, RF, WMBus"
-tools: [read, search, edit]
+tools: [read, search, edit, terminal]
 argument-hint: "Opisz problem firmware/hardware, objawy, logi i oczekiwany efekt"
 user-invocable: true
 ---
